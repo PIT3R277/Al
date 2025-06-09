@@ -1,1 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Generator dowodu</title>
+  <style>
+    body { font-family: sans-serif; background: #e0e0e0; padding: 20px; }
+    .card { background: white; width: 400px; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .photo { width: 100px; height: 120px; object-fit: cover; border: 1px solid #ccc; margin-bottom: 10px; }
+    .row { margin: 6px 0; }
+    .label { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Generator “dowodu”</h2>
+  <form id="gen">
+    <input name="name" placeholder="Imię"> 
+    <input name="surname" placeholder="Nazwisko"><br><br>
+    <input name="birthday" placeholder="DD.MM.YYYY">
+    <input name="birthPlace" placeholder="Miejsce urodzenia"><br><br>
+    <input name="adress1" placeholder="Ulica i nr domu">
+    <input name="adress2" placeholder="Kod pocztowy + miasto"><br><br>
+    <input name="nationality" placeholder="Obywatelstwo">
+    <input name="image" placeholder="URL do zdjęcia"><br><br>
+    <button type="submit">Generuj link</button>
+  </form>
 
+  <div class="card" id="idcard">
+    <img id="photo" class="photo" src="" alt="Zdjęcie">
+    <div class="row"><span class="label">Imię:</span> <span id="name"></span></div>
+    <div class="row"><span class="label">Nazwisko:</span> <span id="surname"></span></div>
+    <div class="row"><span class="label">Data ur.:</span> <span id="birthday"></span></div>
+    <div class="row"><span class="label">Miejsce ur.:</span> <span id="birthPlace"></span></div>
+    <div class="row"><span class="label">Adres:</span> <span id="address"></span></div>
+    <div class="row"><span class="label">Obywatelstwo:</span> <span id="nationality"></span></div>
+  </div>
+
+  <script>
+    // 1. Przejmujemy parametry GET i wypełniamy kartę
+    const params = new URL(location).searchParams;
+    const fields = ["name","surname","birthday","birthPlace","nationality"];
+    fields.forEach(f => {
+      const el = document.getElementById(f);
+      const val = params.get(f);
+      if (val) el.textContent = val;
+    });
+    const photo = params.get("image");
+    if (photo) document.getElementById("photo").src = photo;
+
+    const a1 = params.get("adress1");
+    const a2 = params.get("adress2");
+    if (a1 || a2) document.getElementById("address").textContent = [a1, a2].filter(x=>x).join(", ");
+
+    // 2. Formularz generujący link
+    document.getElementById('gen').onsubmit = e => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const qs = [...f.entries()]
+        .map(([k,v]) => `${k}=${encodeURIComponent(v)}`)
+        .join("&");
+      prompt("Skopiuj swój link:", location.origin + location.pathname + "?" + qs);
+    };
+  </script>
+</body>
+</html>
